@@ -1,16 +1,20 @@
-<?php
-
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TaskController;
-use App\Http\Controllers\ThemeController;
+
 
 Route::get('/', function () {
     return redirect()->route('tasks.index');
 });
 
-Route::middleware(['auth'])->group(function () {
+
+Route::middleware(['auth'])->group(function() {
     Route::resource('tasks', TaskController::class);
-    Route::post('/theme/toggle', [ThemeController::class, 'toggle'])->name('theme.toggle');
+
+    // optionally: theme route if you want to set cookie server-side
+    Route::post('/theme', function(\Illuminate\Http\Request $request) {
+    $theme = $request->input('theme','light');
+    return back()->cookie('theme', $theme, 60*24*365); // 1 year
+    })->name('theme.set');
 });
 
-require __DIR__.'/auth.php';
+
+require __DIR__.'/auth.php'; // Breeze
